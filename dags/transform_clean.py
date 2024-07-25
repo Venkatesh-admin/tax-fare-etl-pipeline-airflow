@@ -16,7 +16,7 @@ def transform_and_clean_data():
     for file in csv_files:
         file_path = os.path.join(staging_folder, file)
         # Read CSV file into a DataFrame
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path,parse_dates=['pickup_datetime', 'dropoff_datetime'])
         # Append DataFrame to list
         df_list.append(df)
     
@@ -29,6 +29,8 @@ def transform_and_clean_data():
     combined_df['trip_duration'] = (combined_df['dropoff_datetime'] - combined_df['pickup_datetime']).dt.total_seconds() / 60
     combined_df = combined_df.dropna(subset=['passenger_count', 'trip_duration'])
     combined_df = combined_df[combined_df['trip_duration'] > 0]
+    # Example: Calculate fare per mile
+    combined_df['fare_per_mile'] = combined_df['fare_amount'] / combined_df['trip_distance']
     
     # Save cleaned data to another staging folder
     cleaned_folder = '/opt/airflow/dags/staging_clean'
@@ -51,19 +53,20 @@ def load_to_mysql():
     for index, row in df.iterrows():
         # Prepare SQL query
         sql = """
-            INSERT INTO taxi_data (pickup_datetime, dropoff_datetime, passenger_count, trip_distance, fare_amount, tip_amount, trip_duration)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
+    INSERT INTO taxi_trips (pickup_datetime, dropoff_datetime, passenger_count, trip_distance, fare_amount, tip_amount, trip_duration, fare_per_mile)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+"""
         # Extract values from DataFrame row
         values = (
-            row['pickup_datetime'],
-            row['dropoff_datetime'],
-            int(row['passenger_count']),
-            float(row['trip_distance']),
-            float(row['fare_amount']),
-            float(row['tip_amount']),
-            float(row['trip_duration'])
-        )
+    row['pickup_datetime'],
+    row['dropoff_datetime'],
+    int(row['passenger_count']),
+    float(row['trip_distance']),
+    float(row['fare_amount']),
+    float(row['tip_amount']),
+    float(row['trip_duration']),
+    float(row['fare_per_mile'])
+)
         # Execute SQL query
         cursor.execute(sql, values)
     
