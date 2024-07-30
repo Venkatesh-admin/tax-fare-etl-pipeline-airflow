@@ -1,3 +1,6 @@
+# Airflow Architecture
+![Alt text](airflow-architecture.png)
+
 # Airflow Docker Deployment
 
 This repository provides a Docker-based deployment setup for Apache Airflow using Docker Compose. It includes a PostgreSQL database and initializes the Airflow database with a default admin user.
