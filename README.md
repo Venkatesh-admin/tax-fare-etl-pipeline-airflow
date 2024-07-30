@@ -1,6 +1,18 @@
 # Airflow Architecture
 ![Alt text](airflow-architecture.png)
 
+
+1. **Scheduler**: Schedules and monitors DAGs, determining which tasks need to be executed. Continuously checks for new tasks and sends them to the Executor.
+
+2. **Executor**: Manages task execution based on the configured backend (e.g., LocalExecutor, CeleryExecutor, KubernetesExecutor). Determines how and where tasks are executed.
+
+3. **Workers**: Nodes that execute the tasks received from the Executor. Their configuration and number can be scaled according to workload.
+
+4. **Web Server**: Provides a user interface for monitoring and managing workflows. Built using the Flask web framework.
+
+5. **Metadata Database**: Stores information about DAGs, task instances, and other metadata. Typically a relational database such as PostgreSQL or MySQL.
+
+6. **DAG (Directed Acyclic Graph)**: A collection of tasks with defined dependencies, represented as Python code. Used to define and manage workflows.
 # Airflow Docker Deployment
 
 This repository provides a Docker-based deployment setup for Apache Airflow using Docker Compose. It includes a PostgreSQL database and initializes the Airflow database with a default admin user.
